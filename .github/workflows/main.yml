@@ -1,4 +1,4 @@
-name: Deploy UI to Lightsail
+name: Deploy to Lightsail
 
 env:
   DEPLOY_PACKAGE_NAME_FILE: "${{ github.sha }}.zip"
