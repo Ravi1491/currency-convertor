@@ -17,6 +17,10 @@ jobs:
       - name: Git clone https://github.com/Ravi1491/currency-convertor
         uses: actions/checkout@v2
 
+      - name: Check environment variables
+        run: |
+          printenv
+
       - name: Install Our App
         run: npm install && npm run build
 
