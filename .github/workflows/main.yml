@@ -23,7 +23,7 @@ jobs:
       - name: This create an env file incase we need one.
         run: |
           touch .env
-          echo PORT=${{ secrets.PORT }} >> .env
+          echo PORT=${{ secrets.LIGTHSAIL_KEY }} >> .env
 
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
