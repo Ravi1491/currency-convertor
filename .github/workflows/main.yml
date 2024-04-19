@@ -3,7 +3,7 @@ name: Deploy to Lightsail
 env:
   DEPLOY_PACKAGE_NAME_FILE: "${{ github.sha }}.zip"
   DEPLOY_PACKAGE_NAME: "${{ github.sha }}"
-  LIGTHSAIL_USERNAME: ${{ secret.LIGTHSAIL_USERNAME }}
+  LIGTHSAIL_USERNAME: ${{ secrets.LIGTHSAIL_USERNAME }}
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
 
       - name: This create an env file incase we need one.
         run: |
-          echo LIGTHSAIL_USERNAME= ${{ secret.LIGTHSAIL_USERNAME }}
+          echo LIGTHSAIL_USERNAME= ${{ secrets.LIGTHSAIL_USERNAME }}
 
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
