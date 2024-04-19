@@ -27,8 +27,7 @@ jobs:
 
       - name: This create an env file incase we need one.
         run: |
-          touch .env
-          echo LIGTHSAIL_USERNAME=${{ secrets.LIGTHSAIL_USERNAME }} >> .env
+          echo LIGTHSAIL_USERNAME= ${{ secrets.LIGTHSAIL_USERNAME }}
 
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
