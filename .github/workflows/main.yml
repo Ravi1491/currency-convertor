@@ -3,7 +3,7 @@ name: Deploy to Lightsail
 env:
   DEPLOY_PACKAGE_NAME_FILE: "${{ github.sha }}.zip"
   DEPLOY_PACKAGE_NAME: "${{ github.sha }}"
-  LIGTHSAIL_USERNAME: "${{ secrets.LIGTHSAIL_USERNAME }}"
+  LIGTHSAIL_USERNAME: {{ secrets.LIGTHSAIL_USERNAME }}
 
 on:
   push:
