@@ -43,7 +43,7 @@ jobs:
           source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
           target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
 
-      - name: Connect to AWS Lightsail, extract file and delete the file
+      - name: Connect to AWS Lightsail, extract file, and restart NGINX
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
@@ -53,9 +53,16 @@ jobs:
           passphrase: ""
           port: 22
           script: |
-            sudo apt-get install zip unzip
-            unzip -q -o /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }} -d /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}
-            rm /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
+            sudo apt-get update && sudo apt-get install -y zip unzip
+            unzip_result=$(unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}")
+            if [ $? -ne 0 ]; then
+              echo "Error extracting deployment package: $unzip_result"
+              exit 1
+            fi
+            rm "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}"
             sudo systemctl restart nginx
-      - name: Deployment completed Successfully
-        run: echo "Deployment completed successfuly"
+            if [ $? -ne 0 ]; then
+              echo "Error restarting NGINX server"
+              exit 1
+            fi
+            echo "Deployment completed successfully"
