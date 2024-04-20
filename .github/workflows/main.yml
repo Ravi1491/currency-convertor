@@ -35,7 +35,7 @@ jobs:
           source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
           target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
 
-      - name: Connect to AWS Lightsail, extract file, and restart NGINX
+      - name: Connect to AWS Lightsail, extract file, and restart server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
@@ -45,17 +45,10 @@ jobs:
           passphrase: ""
           port: 22
           script: |
-            sudo apt-get update && sudo apt-get install -y zip unzip
+            sudo apt-get update && sudo apt-get install -y unzip
             mkdir -p "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
-            unzip_result=$(unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}")
-            if [ $? -ne 0 ]; then
-              echo "Error extracting deployment package: $unzip_result"
-              exit 1
-            fi
-            rm "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}"
-            sudo systemctl restart nginx
-            if [ $? -ne 0 ]; then
-              echo "Error restarting NGINX server"
-              exit 1
-            fi
+            unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
+            cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
+            npm install --only=prod
+            npm run dev &
             echo "Deployment completed successfully"
