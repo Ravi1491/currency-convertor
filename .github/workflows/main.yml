@@ -50,11 +50,13 @@ jobs:
           passphrase: ""
           port: 22
           script: |
-            sudo apt-get update && sudo apt-get install -y unzip
+            sudo apt-get update && sudo apt-get install -y zip unzip
             mkdir -p "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             rm /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
-            cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
-            npm install -g serve
-            serve -s -l 5173 &  # Change port number if necessary
+            sudo systemctl restart nginx
+            if [ $? -ne 0 ]; then
+              echo "Error restarting NGINX server"
+              exit 1
+            fi
             echo "Deployment completed successfully"
