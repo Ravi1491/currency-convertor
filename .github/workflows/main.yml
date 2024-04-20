@@ -17,6 +17,11 @@ jobs:
       - name: Git clone https://github.com/Ravi1491/currency-convertor
         uses: actions/checkout@v2
 
+      - name: Install Node.js and npm
+        run: |
+          sudo apt update
+          sudo apt install -y nodejs npm
+
       - name: Install Our App
         run: npm install && npm run build
 
@@ -51,5 +56,5 @@ jobs:
             rm /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
             cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
             npm install -g serve
-            serve -s -l 5173 &
+            serve -s -l 5173 &  # Change port number if necessary
             echo "Deployment completed successfully"
