@@ -3,7 +3,6 @@ name: Deploy to Lightsail
 env:
   DEPLOY_PACKAGE_NAME_FILE: "${{ github.sha }}.zip"
   DEPLOY_PACKAGE_NAME: "${{ github.sha }}"
-  LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
 
 on:
   push:
@@ -20,13 +19,6 @@ jobs:
 
       - name: Install Our App
         run: npm install && npm run build
-
-      - name: Check environment variables
-        run: env
-
-      - name: This create an env file incase we need one.
-        run: |
-          echo LIGHTSAIL_USERNAME= ${{ secrets.LIGHTSAIL_USERNAME }}
 
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
@@ -54,6 +46,7 @@ jobs:
           port: 22
           script: |
             sudo apt-get update && sudo apt-get install -y zip unzip
+            mkdir -p "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             unzip_result=$(unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}")
             if [ $? -ne 0 ]; then
               echo "Error extracting deployment package: $unzip_result"
