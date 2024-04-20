@@ -23,7 +23,7 @@ jobs:
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
 
-      - name: copy file via ssh password
+      - name: Copy file via SSH password
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
@@ -35,7 +35,7 @@ jobs:
           source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
           target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
 
-      - name: Connect to AWS Lightsail, extract file, and restart server
+      - name: Connect to AWS Lightsail, extract file, and start production server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
@@ -49,6 +49,6 @@ jobs:
             mkdir -p "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
-            npm install --only=prod
-            npm run dev &
+            npm install -g serve
+            serve -s -l 5173 &
             echo "Deployment completed successfully"
