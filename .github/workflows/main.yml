@@ -3,7 +3,7 @@ name: Deploy to Lightsail
 env:
   DEPLOY_PACKAGE_NAME_FILE: "${{ github.sha }}.zip"
   DEPLOY_PACKAGE_NAME: "${{ github.sha }}"
-  LIGTHSAIL_USERNAME: ${{ secrets.LIGTHSAIL_USERNAME }}
+  LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
 
       - name: This create an env file incase we need one.
         run: |
-          echo LIGTHSAIL_USERNAME= ${{ secrets.LIGTHSAIL_USERNAME }}
+          echo LIGHTSAIL_USERNAME= ${{ secrets.LIGHTSAIL_USERNAME }}
 
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
@@ -34,28 +34,28 @@ jobs:
       - name: copy file via ssh password
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.LIGTHSAIL_IP }}
-          username: ${{ secrets.LIGTHSAIL_USERNAME }}
-          key: ${{ secrets.LIGTHSAIL_KEY }}
+          host: ${{ secrets.LIGHTSAIL_IP }}
+          username: ${{ secrets.LIGHTSAIL_USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
           password: ""
           passphrase: ""
           port: 22
           source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
-          target: "/home/${{ secrets.LIGTHSAIL_USERNAME }}"
+          target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
 
       - name: Connect to AWS Lightsail, extract file and delete the file
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.LIGTHSAIL_IP }}
-          username: ${{ secrets.LIGTHSAIL_USERNAME }}
-          key: ${{ secrets.LIGTHSAIL_KEY }}
+          host: ${{ secrets.LIGHTSAIL_IP }}
+          username: ${{ secrets.LIGHTSAIL_USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
           password: ""
           passphrase: ""
           port: 22
           script: |
             sudo apt-get install zip unzip
-            unzip -q -o /home/${{ secrets.LIGTHSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }} -d /home/${{ secrets.LIGTHSAIL_USERNAME }}/${{ secrets.LIGTHSAIL_ROOT_DIR }}
-            rm /home/${{ secrets.LIGTHSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
+            unzip -q -o /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }} -d /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}
+            rm /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
             sudo systemctl restart nginx
       - name: Deployment completed Successfully
         run: echo "Deployment completed successfuly"
