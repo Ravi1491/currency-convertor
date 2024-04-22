@@ -42,7 +42,7 @@ jobs:
           source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
           target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
 
-      - name: Connect to AWS Lightsail, extract file, and start production server
+      - name: Connect to AWS Lightsail, extract file, and start production server with PM2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
@@ -56,5 +56,5 @@ jobs:
             unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
             rm "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}"
             cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
-            nohup npx http-server -p 5173 & # Run server in the background
-            exit # Close the SSH connection
+            pm2 start npm --name "currency-convertor" -- start
+            pm2 save
