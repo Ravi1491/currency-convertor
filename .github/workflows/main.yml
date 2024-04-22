@@ -14,7 +14,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      - name: Git clone https://github.com/Ravi1491/currency-convertor
         uses: actions/checkout@v2
 
       - name: Set up Node.js
@@ -30,8 +30,20 @@ jobs:
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME_FILE }} ./dist/ -x *.git*
 
-      - name: Connect to AWS Lightsail, extract file, and start production server with PM2
-        uses: appleboy/ssh-action@v0.1.7
+      - name: Copy file via SSH password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_IP }}
+          username: ${{ secrets.LIGHTSAIL_USERNAME }}
+          key: ${{ secrets.LIGHTSAIL_KEY }}
+          password: ""
+          passphrase: ""
+          port: 22
+          source: ${{ env.DEPLOY_PACKAGE_NAME_FILE }}
+          target: "/home/${{ secrets.LIGHTSAIL_USERNAME }}"
+
+      - name: Connect to AWS Lightsail and start HTTP server
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USERNAME }}
@@ -42,8 +54,8 @@ jobs:
           script: |
             sudo apt-get update && sudo apt-get install -y unzip
             unzip -q -o "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}" -d "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}"
-            rm /home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}
+            rm "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ env.DEPLOY_PACKAGE_NAME_FILE }}"
             cd "/home/${{ secrets.LIGHTSAIL_USERNAME }}/${{ secrets.LIGHTSAIL_ROOT_DIR }}/dist"
-            npm install -g serve
-            serve -s -l 5173 &  # Change port number if necessary
-            echo "Deployment completed successfully"
+            npm install -g http-server
+            nohup http-server -p 80 >/dev/null 2>&1 &  # Run HTTP server in the background and discard output
+            echo "HTTP server started successfully"
