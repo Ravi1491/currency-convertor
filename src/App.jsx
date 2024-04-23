@@ -50,7 +50,7 @@ function App() {
                   onClick={swap}
                   className="border-2 border-white-500 absolute px-2 py-0.5 rounded-md text-center text-white left-1/2 -translate-x-1/2 -translate-y-1/2  bg-blue-500"
                 >
-                  swap
+                  Exchange
                 </button>
               </div>
               <div className="w-full mt-1 mb-1">
